@@ -12,6 +12,7 @@ TEST(test_tensor, create) {
   ASSERT_EQ(tensor.channels(), 3);
   ASSERT_EQ(tensor.rows(), 32);
   ASSERT_EQ(tensor.cols(), 32);
+  ASSERT_EQ(tensor.empty(), false);
 }
 
 TEST(test_tensor, fill) {
@@ -25,6 +26,8 @@ TEST(test_tensor, fill) {
   for (int i = 0; i < 27; ++i) {
     values.push_back((float) i);
   }
+  const arma::fmat &a = arma::fmat(3,3);
+
   tensor.Fill(values);
   LOG(INFO) << tensor.data();
 

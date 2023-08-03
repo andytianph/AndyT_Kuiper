@@ -41,7 +41,7 @@ uint32_t Tensor<float>::channels() const {
 
 uint32_t Tensor<float>::size() const {
   CHECK(!this->data_.empty());
-  return this->data_.size();
+  return this->data_.size();    // 放了多少个float元素就是多少
 }
 
 void Tensor<float>::set_data(const arma::fcube &data) {
@@ -56,7 +56,7 @@ bool Tensor<float>::empty() const {
 }
 
 float Tensor<float>::index(uint32_t offset) const {
-  CHECK(offset < this->data_.size());
+  CHECK(offset < this->data_.size());   // 是否越界
   return this->data_.at(offset);
 }
 
@@ -106,7 +106,13 @@ void Tensor<float>::Padding(const std::vector<uint32_t> &pads, float padding_val
   uint32_t pad_cols2 = pads.at(3);  // right
 
   //todo 请把代码补充在这里1
-
+    std::cout << pads.at(0) << std::endl;
+    std::cout << pads.at(1) << std::endl;
+  this->data_.insert_rows(0, pad_rows1);
+  this->data_.insert_rows(this->rows(), pad_rows2);
+  this->data_.insert_cols(0, pad_cols1);
+  this->data_.insert_cols(this->cols(), pad_cols2);
+  this->raw_shapes_ = this->shapes();
 }
 
 void Tensor<float>::Fill(float value) {
@@ -125,6 +131,26 @@ void Tensor<float>::Fill(const std::vector<float> &values) {
   const uint32_t channels = this->data_.n_slices;
 
   //todo 请把代码补充在这里2
+    // 希望以行顺序去赋值，0 1 2 3 4 5
+    // 但是底层还是列主序的
+    for (uint32_t i = 0; i < channels; ++i) {
+        // 11  1 1 1 1 1 || 11  2 1 1 1 1 ||
+        auto &channel_data= this->data_.slice(i);
+        const arma::fmat &channel_data_t = arma::fmat(values.data() + i * planes, this->cols(), this->rows());
+        channel_data = channel_data_t.t();
+//        底层都是列主序，这点是由armadillo确定的，无法改变。
+//        但是我们希望把数据放进来的时候是按行的顺序赋值，如下：
+//        0        1.0000   2.0000
+//        3.0000   4.0000   5.0000
+//        6.0000   7.0000   8.0000
+//        底层还是列主序，0和3元素是邻居，3和6元素是邻居
+//        numpy、eigen、opencv中则是行主序，0和1是邻居，1和2是邻居
+
+//        channel_data = arma::fmat(values.data() + i * planes, this->cols(), this->rows());
+//        0        3.0000   6.0000
+//        1.0000   4.0000   7.0000
+//        2.0000   5.0000   8.0000
+    }
 }
 
 void Tensor<float>::Show() {
