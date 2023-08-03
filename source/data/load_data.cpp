@@ -38,6 +38,12 @@ std::shared_ptr<Tensor<float >> CSVDataLoader::LoadDataWithHeader(const std::str
         //todo 补充
         // 能够读取到第一行的csv列名，并存放在headers中
         // 能够读取到第二行之后的csv数据，并相应放置在data变量的row，col位置中
+        if (row == 0) {
+            headers.push_back(token);
+        }
+        else {
+            data.at(row - 1, col) = std::stof(token);   //std::stof C++标准库：解析字符串，将其内容解释为浮点数，该浮点数作为float类型的值返回。
+        }
       }
       catch (std::exception &e) {
         LOG(ERROR) << "Parse CSV File meet error: " << e.what();
@@ -55,7 +61,7 @@ std::shared_ptr<Tensor<float >> CSVDataLoader::LoadDataWithHeader(const std::str
 
 std::shared_ptr<Tensor<float >> CSVDataLoader::LoadData(const std::string &file_path, char split_char) {
   CHECK(!file_path.empty()) << "File path is empty!";
-  std::ifstream in(file_path);
+  std::ifstream in(file_path);  // 打开文件，C++的io知识
   CHECK(in.is_open() && in.good()) << "File open failed! " << file_path;
 
   std::string line_str;
@@ -101,7 +107,7 @@ std::pair<size_t, size_t> CSVDataLoader::GetMatrixSize(std::ifstream &file, char
   file.clear();
   size_t fn_rows = 0;
   size_t fn_cols = 0;
-  const std::ifstream::pos_type start_pos = file.tellg();
+  const std::ifstream::pos_type start_pos = file.tellg();   // 记录当前文件偏移
 
   std::string token;
   std::string line_str;
