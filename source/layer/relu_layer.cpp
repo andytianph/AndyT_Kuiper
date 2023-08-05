@@ -13,7 +13,7 @@ ReluLayer::ReluLayer(const std::shared_ptr<Operator> &op) : Layer("Relu") {
   // 这边的op不是ReluOperator类型的指针，就报错
   // 我们这里只接受ReluOperator类型的指针
   // 父类指针必须指向子类ReluOperator类型的指针
-  // 为什么不讲构造函数设置为const std::shared_ptr<ReluOperator> &op？
+  // 为什么不将构造函数设置为const std::shared_ptr<ReluOperator> &op？
   // 为了接口统一，具体下节会说到
   ReluOperator *relu_op = dynamic_cast<ReluOperator *>(op.get());
 
@@ -28,7 +28,7 @@ void ReluLayer::Forwards(const std::vector<std::shared_ptr<Tensor<float>>> &inpu
   // relu 操作在哪里，这里！
   // 我需要该节点信息的时候 直接这么做
   // 实行了属性存储和运算过程的分离！！！！！！！！！！！！！！！！！！！！！！！！
-  //x就是inputs y = outputs
+  // x就是inputs, y = outputs
   CHECK(this->op_ != nullptr);
   CHECK(this->op_->op_type_ == OpType::kOperatorRelu);
   CHECK(!inputs.empty());
